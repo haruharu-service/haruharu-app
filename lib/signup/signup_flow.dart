@@ -14,6 +14,9 @@ class SignupFlowPage extends StatefulWidget {
 class _SignupFlowPageState extends State<SignupFlowPage> {
   final PageController _controller = PageController();
   int _stepIndex = 0;
+  String? _loginId;
+  String? _password;
+  String? _nickname;
 
   @override
   void dispose() {
@@ -77,15 +80,32 @@ class _SignupFlowPageState extends State<SignupFlowPage> {
                   });
                 },
                 children: [
-                  SignupPage1(onNext: _goNext, onLogin: _goLogin),
+                  SignupPage1(
+                    onNext: (loginId, password) {
+                      setState(() {
+                        _loginId = loginId;
+                        _password = password;
+                      });
+                      _goNext();
+                    },
+                    onLogin: _goLogin,
+                  ),
                   SignupPage2(
-                    onNext: _goNext,
+                    onNext: (nickname) {
+                      setState(() {
+                        _nickname = nickname;
+                      });
+                      _goNext();
+                    },
                     onPrev: _goPrev,
                     onLogin: _goLogin,
                   ),
                   SignupPage3(
                     onPrev: _goPrev,
                     onLogin: _goLogin,
+                    loginId: _loginId,
+                    password: _password,
+                    nickname: _nickname,
                   ),
                 ],
               ),
