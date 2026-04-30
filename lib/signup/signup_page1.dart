@@ -107,8 +107,8 @@ class _SignupPage1State extends State<SignupPage1> {
       _passwordError = password.isEmpty
           ? null
           : passwordValid
-              ? null
-              : '8자 이상, 대소문자+숫자를 포함해 주세요';
+          ? null
+          : '8자 이상, 대소문자+숫자를 포함해 주세요';
       _passwordConfirmError = confirm.isEmpty
           ? null
           : (password == confirm ? null : '비밀번호가 일치하지 않아요');
@@ -118,22 +118,25 @@ class _SignupPage1State extends State<SignupPage1> {
   @override
   Widget build(BuildContext context) {
     final loginId = _loginIdController.text.trim();
-    final loginIdStatusText = _loginIdError ??
+    final loginIdStatusText =
+        _loginIdError ??
         (_isCheckingLoginId
             ? '아이디 확인 중...'
             : _isLoginIdAvailable == null
-                ? null
-                : _isLoginIdAvailable == true
-                    ? '사용 가능한 아이디입니다'
-                    : '이미 사용 중인 아이디입니다');
+            ? '아이디 입력 후 자동으로 확인됩니다.'
+            : _isLoginIdAvailable == true
+            ? '사용 가능한 아이디입니다'
+            : '이미 사용 중인 아이디입니다');
 
     final loginIdStatusColor = _loginIdError != null
         ? const Color(0xFFFF6B6B)
         : _isCheckingLoginId
-            ? textMuted
-            : _isLoginIdAvailable == true
-                ? const Color(0xFF2DBE7C)
-                : const Color(0xFFFF6B6B);
+        ? textMuted
+        : _isLoginIdAvailable == true
+        ? const Color(0xFF2DBE7C)
+        : _isLoginIdAvailable == null
+        ? textMuted
+        : const Color(0xFFFF6B6B);
 
     final canProceed =
         loginId.isNotEmpty &&
@@ -152,9 +155,9 @@ class _SignupPage1State extends State<SignupPage1> {
           Text(
             '반가워요!\n계정을 만들어주세요',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: textDark,
-                ),
+              fontWeight: FontWeight.w800,
+              color: textDark,
+            ),
           ),
           const SizedBox(height: 28),
           const FieldLabel(text: '아이디'),
@@ -251,10 +254,9 @@ class _SignupPage1State extends State<SignupPage1> {
               onTap: widget.onLogin,
               child: RichText(
                 text: TextSpan(
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: textMuted),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: textMuted),
                   children: const [
                     TextSpan(text: '이미 계정이 있으신가요? '),
                     TextSpan(

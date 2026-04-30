@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'account/account_state.dart';
 import 'requests/auth_requests.dart';
 import 'api/api_client.dart';
 import 'api/token_storage.dart';
+import 'home.dart';
 import 'signup/signup_flow.dart';
 import 'requests/quote_requests.dart';
 
@@ -97,12 +99,7 @@ class _LoginPageState extends State<LoginPage>
 
     try {
       final client = ApiClient.instance;
-      await client.dio.get(
-        '',
-        options: Options(
-          validateStatus: (_) => true,
-        ),
-      );
+      await client.dio.get('', options: Options(validateStatus: (_) => true));
       if (!mounted) return;
       setState(() {
         _connectionState = _ServerConnectionState.success;
@@ -151,16 +148,16 @@ class _LoginPageState extends State<LoginPage>
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
       );
+      await TokenStorage.instance.recordLoginToday();
+      AccountState.instance.setLoggedInUser(loginId: loginId);
       if (!mounted) return;
-      // TODO: 로그인 성공 후 이동 처리
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
     } catch (error) {
       if (!mounted) return;
       setState(() {
         _apiError = error.toString();
-      });
-    } finally {
-      if (!mounted) return;
-      setState(() {
         _isSubmitting = false;
       });
     }
@@ -206,8 +203,10 @@ class _LoginPageState extends State<LoginPage>
             if (!_showConnectionModal)
               Center(
                 child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 32,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -215,23 +214,22 @@ class _LoginPageState extends State<LoginPage>
                       const SizedBox(height: 40),
                       Text(
                         '나를 지키는 작은 습관',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: const Color(0xFF9DA6C8)),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: const Color(0xFF9DA6C8),
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       _GlassText(
                         text: 'haru:',
                         animation: _glassController,
-                        style:
-                            Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  fontStyle: FontStyle.italic,
-                                  letterSpacing: -0.5,
-                                  color: const Color(0xFFB5BFE4),
-                                ),
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontStyle: FontStyle.italic,
+                              letterSpacing: -0.5,
+                              color: const Color(0xFFB5BFE4),
+                            ),
                       ),
                       const SizedBox(height: 32),
                       Align(
@@ -242,8 +240,10 @@ class _LoginPageState extends State<LoginPage>
                             return FadeTransition(
                               opacity: animation,
                               child: ScaleTransition(
-                                scale: Tween<double>(begin: 0.98, end: 1)
-                                    .animate(animation),
+                                scale: Tween<double>(
+                                  begin: 0.98,
+                                  end: 1,
+                                ).animate(animation),
                                 child: child,
                               ),
                             );
@@ -257,10 +257,9 @@ class _LoginPageState extends State<LoginPage>
                       const SizedBox(height: 32),
                       Text(
                         '아이디',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge
-                            ?.copyWith(color: const Color(0xFF9DA6C8)),
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: const Color(0xFF9DA6C8),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       TextField(
@@ -310,9 +309,7 @@ class _LoginPageState extends State<LoginPage>
                           children: [
                             Text(
                               '비밀번호',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelLarge
+                              style: Theme.of(context).textTheme.labelLarge
                                   ?.copyWith(color: const Color(0xFF9DA6C8)),
                             ),
                             const SizedBox(height: 8),
@@ -411,9 +408,7 @@ class _ServerConnectionModal extends StatelessWidget {
         duration: const Duration(milliseconds: 280),
         curve: Curves.easeOut,
         child: DecoratedBox(
-          decoration: const BoxDecoration(
-            color: Color(0xCC0E1227),
-          ),
+          decoration: const BoxDecoration(color: Color(0xCC0E1227)),
           child: Center(
             child: AnimatedScale(
               scale: fadeOut ? 0.98 : 1,
@@ -421,8 +416,10 @@ class _ServerConnectionModal extends StatelessWidget {
               curve: Curves.easeOut,
               child: Container(
                 width: 280,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E2546),
                   borderRadius: BorderRadius.circular(20),
@@ -461,17 +458,17 @@ class _ServerConnectionModal extends StatelessWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFFE8ECFF),
-                          ),
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFE8ECFF),
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: const Color(0xFFB3BBE0),
-                          ),
+                        color: const Color(0xFFB3BBE0),
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     if (state == _ServerConnectionState.failed) ...[
@@ -540,10 +537,7 @@ class _BubblePainter extends CustomPainter {
       size.width,
       size.height - tailHeight,
     );
-    final rrect = RRect.fromRectAndRadius(
-      bubbleRect,
-      Radius.circular(radius),
-    );
+    final rrect = RRect.fromRectAndRadius(bubbleRect, Radius.circular(radius));
 
     final path = Path()..addRRect(rrect);
     path.moveTo(tailCenterX - tailWidth / 2, bubbleRect.bottom);
@@ -570,10 +564,7 @@ class _BackgroundGlow extends StatelessWidget {
           gradient: RadialGradient(
             center: Alignment(0.2, -0.6),
             radius: 1.1,
-            colors: [
-              Color(0xFF202A5A),
-              Color(0xFF151C38),
-            ],
+            colors: [Color(0xFF202A5A), Color(0xFF151C38)],
           ),
         ),
         child: const SizedBox.shrink(),
@@ -583,11 +574,7 @@ class _BackgroundGlow extends StatelessWidget {
 }
 
 class _GlassText extends StatelessWidget {
-  const _GlassText({
-    required this.text,
-    required this.animation,
-    this.style,
-  });
+  const _GlassText({required this.text, required this.animation, this.style});
 
   final String text;
   final Animation<double> animation;
@@ -596,7 +583,9 @@ class _GlassText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resolvedStyle =
-        style ?? Theme.of(context).textTheme.headlineMedium ?? const TextStyle();
+        style ??
+        Theme.of(context).textTheme.headlineMedium ??
+        const TextStyle();
 
     return AnimatedBuilder(
       animation: animation,
