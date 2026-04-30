@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'login.dart';
 import 'api/api_client.dart';
+import 'auth_gate.dart';
 
 void main() {
   ApiClient.instance.initialize();
@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           hintStyle: const TextStyle(color: Color(0xFF8B94B8)),
         ),
       ),
-      home: const LoginPage(),
+      home: const AuthGate(),
     );
   }
 }
